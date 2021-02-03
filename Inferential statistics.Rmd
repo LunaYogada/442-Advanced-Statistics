@@ -1,0 +1,209 @@
+---
+title: "Inferential Statistics"
+author: "Jiaqi"
+date: "1/24/2021"
+output: github_document
+---
+
+
+# Constructing a 95% confidence interval
+## One sample mean
+
+
+If a point estimate closely follows a normal model with standard error SE, and sample size > 30, then a confidence interval for the population parameter is
+point estimate +- z*SE
+where z* corresponds to the confidence level selected.
+
+```{r onemean}
+## To find the confidence interval estimate for mean, we need
+## 1. The point Estimate (Sample mean)
+## 2. The standard error of estimate
+## 3. The z critical value corresponding to the Confidence Level (CL)
+
+### Sample mean
+x_bar <- 10
+
+### Sample Size
+n <- 30
+
+### Population Std. Dev.
+sigma <- 1.65
+
+### z-critical for 90%, 95%, and 99% CLs
+
+### For 90% confidence... 
+z90 <- qnorm(0.95, mean = 0, sd = 1, lower.tail = TRUE)
+
+### For 95% confidence... 
+z95 <- qnorm(0.975, mean = 0, sd = 1, lower.tail = TRUE)
+
+### For 99% confidence... 
+z99 <- qnorm(0.995, mean = 0, sd = 1, lower.tail = TRUE)
+
+### 90% Confidence Interval
+l90 <- x_bar - (z90*sigma/sqrt(n))
+r90 <- x_bar + (z90*sigma/sqrt(n))
+
+l90_rounded <- round(l90, digits = 3)
+r90_rounded <- round(r90, digits = 3)
+
+### 95% Confidence Interval
+l95 <- x_bar - (z95*sigma/sqrt(n))
+r95 <- x_bar + (z95*sigma/sqrt(n))
+
+l95_rounded <- round(l95, digits = 3)
+r95_rounded <- round(r95, digits = 3)
+
+### 99% Confidence Interval
+l99 <- x_bar - (z99*sigma/sqrt(n))
+r99 <- x_bar + (z99*sigma/sqrt(n))
+
+l99_rounded <- round(l99, digits = 3)
+r99_rounded <- round(r99, digits = 3)
+```
+
+
+
+## one sample percentage
+
+```{r onepercentage}
+
+
+### Get the total number of records
+n <- 32
+
+### Sample Proportion: Proportion of people preferring Crest
+p_hat <- 0.52
+
+### Sample Proportion of people NOT preferring Crest
+p<-1 - p_hat
+
+### Checking the condition for large sample size...
+n*p_hat >= 15
+n*(1 - p_hat) >= 15
+
+### For 95% confidence... 
+z95 <- qnorm(0.975, mean = 0, sd = 1, lower.tail = TRUE)
+
+### 95% Confidence Interval
+l95 <- p_hat - (z95 * sqrt(p_hat * (1 - p_hat)/n))
+r95 <- p_hat + (z95 * sqrt(p_hat * (1 - p_hat)/n))
+
+### Display 95% CI
+sprintf("95 percent Confidence Interval: (%s, %s)", l95_rounded, r95_rounded)  ### Display in decimal form
+sprintf("95 percent Confidence Interval: (%.1f %%, %.1f %%)", l95_rounded*100, r95_rounded*100)  ### Display in % form
+
+#### Interpretation
+#### We are 95% confident that the interval between 23.6% and 36.4% contains
+#### trhe true proportion of toothpaste customers who prefer Crest.
+```
+
+
+# hypothesis test
+
+## Hypothesis Tests for a population mean
+### If sigma is known , then we use the 𝒛 test for population mean
+
+
+```{r z test}
+library(PASWR2)
+data<-read.csv('Exercise2.csv')
+z.test(data$Orders, sigma.x = 12, alternative = "greater", mu = 85 )
+```
+
+### if sigma is unknown, then we use the 𝒕 test for population mean
+
+Companies that sell groceries over the Internet are called e-grocers. Customers enter their orders, pay by credit card, and receive delivery by truck. A potential e-grocer analyzed the market and determined that the average order would have to exceed $85 if the e-grocer were to be profitable. To determine whether an e-grocery would be profitable in one large city, she offered the service and recorded the size of the order for a random sample of customers. Can we infer from these data that an e-grocery will be profitable in this city?
+
+```{r t test}
+library(PASWR2)
+data<-read.csv('Exercise2.csv')
+t.test(data$Orders, alternative = "greater", mu = 85)
+
+```
+## Hypothesis Tests for paried data population means
+```{r paired means}
+Exercise7 <- read.csv("Exercise7.csv")
+
+t.test(Exercise7$Company1, Exercise7$Company2, alternative = "greater", mu = 0, paired = TRUE)
+```
+
+
+## Hypothesis Tests for Differences between 2 population means
+-t.test()
+-tsum.test()
+
+The average mpg usage for a 2009 Toyota Prius for a sample of 10 tanks of gas was 45.5 with a standard deviation of 1.8. For a 2009 Honda Insight, the average mpg usage for a sample of 10 tanks of gas was 42.0 with a standard deviation of 2.3. Assuming equal variances, at α = 0.01, is the true mean mpg lower for the Honda Insight?
+```{r two means}
+# tsum.test is found in PASWR2 package and can be used when not dataset but summaries for two samples are given. 
+
+tsum.test(mean.x = 42.0, s.x = 2.3, n.x = 10, mean.y = 45.5, s.y = 1.8, n.y = 10, alternative = "less", var.equal = TRUE)
+
+```
+## Hypothesis Tests for a population proportion
+For testing one and two sample proportions:
+prop.test command in R.
+
+Management of a software development firm would like to establish a wellness program during the lunch hour to enhance the physical and mental health of its employees. Before introducing the wellness program, management must first be convinced that a sufficiently large majority of its employees are not already exercising at lunchtime. Specifically, it plans to initiate the program only if less than 40% of its personnel take time to exercise prior to eating lunch. To make this decision, management has surveyed a random sample of 100 employees regarding their midday exercise activities. The results of the survey are given in the file Exercise3.csv. Is there sufficient evidence at the 10% significance level for managers of this organization to initiate a corporate wellness program? Why or why not? What about at the 1% significance level?
+```{r one proportion}
+Exercise3 <- read.csv("Exercise3.csv")
+num_Yes <- sum(Exercise3$Exercise == 'Yes')
+prop.test(num_Yes, nrow(Exercise3), alternative = "less", p = 0.4)
+```
+
+## Hypothesis Tests for Differences between population proportions
+
+Exercise
+The market for breakfast cereals has been divided into several segments related to health. One company identified a segment as those adults who are health conscious. The marketing manager would like to know whether this segment is more likely to purchase its Special X cereal that is pitched toward the health conscious segment. A survey of adults was undertaken. On the basis of several probing questions each was classified as either a member of the health-conscious group (code = 1) or not (code = 2). Each respondent was also asked whether he or she buys Special X (1 = No, 2 = Yes). The data were recorded in stacked format. Can we infer from these data that health-conscious adults are more likely to buy Special X?
+
+Analysis:
+Run a two-sample prop.test. 
+Supply two vectors.
+One vector is the number of successes. Success being defined as being health conscious and buy for the first sample, and No Health Conscious and Buy for the second sample.
+Second vector is the total no. of health conscious for the first sample and total no. of no health conscious for the second sample.
+Make sure to pay attention to the sign in the alternative hypothesis. 
+```{r two proportion}
+Exercise9 <- read.csv("Exercise9.csv")
+
+### Create a cross-tab table first to determine frequencies.
+t <- table(Exercise9$Group, Exercise9$BuySpX)
+
+### Add margin totals to the crosstab 
+addmargins(t)
+
+prop.test(c(32, 56), c(231, 619), alternative = "greater", correct = FALSE)
+```
+
+
+
+## Hypothesis Tests for Equal population variances
+For testing two sample variances
+-var.test command in R.
+
+Between Wendy’s and McDonald’s, which fast-food drive-through window is faster? To answer the question, a random sample of service times for each restaurant was measured. Can we infer from these data that there are differences in service times between the two chains?
+```{r equal variances}
+Exercise5 <- read.csv("Exercise5.csv")
+
+var.test(Exercise5$Wendys, Exercise5$McDonalds, ratio = 1, alternative = "two.sided")
+
+### Variances are equal, so run Equal Variance t-test ###
+t.test(Exercise5$Wendys, Exercise5$McDonalds, alternative = "two.sided", mu = 0, paired = FALSE, var.equal = TRUE)
+```
+
+
+
+
+
+## Hypothesis Test for testing one sample test for population variance.
+Test the hypothesis for variance
+-varTest command in R in EnvStats package.
+-Var_test1 command in R in OneTwoSamples package
+
+Some traffic experts believe that the major cause of highway collisions is the differing speeds of cars. That is, when some cars are driven slowly while others are driven at speeds well in excess of the speed limit, cars tend to congregate in bunches, increasing the probability of accidents. Thus, the greater the variation in speeds, the greater will be the number of collisions that occur. Suppose that one expert believes that when the variance exceeds 18 mph2, the number of accidents will be unacceptably high. A random sample of the speeds of 245 cars on a highway with one of the highest accident rates in the country is taken. Can we conclude at the 10% significance level that the variance in speeds exceeds 18 mph2?
+```{r variance}
+library(EnvStats)
+Exercise4 <- read.csv("Exercise4.csv")
+varTest(Exercise4$Speeds, alternative = "greater", sigma.squared = 18)
+```
+
+
